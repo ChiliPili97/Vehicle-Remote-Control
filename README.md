@@ -37,11 +37,15 @@ This project was created as a personal learning experience in the following area
 
 | Component           | Description                          |
 |--------------------|--------------------------------------|
-| STM32F103          | Microcontroller to control everything |
+| STM32F103C8T6          | Microcontroller to control everything |
 | ESP32 WROOM Kit    | Reads joystick and sends commands     |
 | HC-05              | Bluetooth module for communication    |
 | Motor Driver (DRV8833 or similar) | Controls 4 DC motors     |
 | 4x DC Motors       | Drive the vehicle                    |
+| 4x Batteries AA    | Power supply for logic               |
+| 2x Accumulators 18650 | Power supply for motors           |
+| 2x Electrical switch | Separate power supply switch motor and logic |
+| Voltage regulator AMS1117 | Provide a stable 5V voltage for logic   |
 | Joystick Module    | Directional input                    |
 | Power Supply       | Battery pack or USB power            |
 
@@ -49,7 +53,7 @@ This project was created as a personal learning experience in the following area
 
 ## Wiring Overview
 
-
+![Wiring Overview](./image/wiring.jpg) 
 ---
 
 ## How to Control
