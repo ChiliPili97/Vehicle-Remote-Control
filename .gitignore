@@ -1,0 +1,41 @@
+ # STM32CubeIDE build folders
+car_controller/Debug/
+car_controller/Release/
+
+# STM32CubeIDE project settings
+car_controller/.settings/
+car_controller/.metadata/
+car_controller/*.launch
+
+# Eclipse-specific files
+*.pydevproject
+.project
+.cproject
+
+# Object and dependency files
+*.o
+*.d
+
+# Output binaries and related files
+*.elf
+*.hex
+*.bin
+*.map
+*.list
+
+# Backup and temporary files
+*~
+*.swp
+*.bak
+*.tmp
+
+# CubeMX generated backup
+*.ioc_backup
+
+# System files (macOS, Windows)
+.DS_Store
+Thumbs.db
+
+# Other files
+Wiring.fzz
+
