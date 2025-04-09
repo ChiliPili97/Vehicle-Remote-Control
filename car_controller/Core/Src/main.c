@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "motor.h"
+#include "stdbool.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -44,6 +45,7 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 uint8_t rx_buffer[RX_BUFFER_LEN] = {0};
+bool is_paired;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -97,12 +99,19 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  is_paired = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0);
+	  if (is_paired) {
+		  if ((char) rx_buffer[0] == 'F')		move_forward();
+		  	  else if ((char) rx_buffer[0] == 'B')	move_backward();
+		  	  else if ((char) rx_buffer[0] == 'H') 	halt();
+		  	  else if ((char) rx_buffer[0] == 'R')	move_right();
+		  	  else if ((char) rx_buffer[0] == 'L') 	move_left();
+	} else {
+		halt();
+	}
+
     /* USER CODE END WHILE */
-	  if ((char) rx_buffer[0] == 'F')		move_forward();
-	  else if ((char) rx_buffer[0] == 'B')	move_backward();
-	  else if ((char) rx_buffer[0] == 'H') 	halt();
-	  else if ((char) rx_buffer[0] == 'R')	move_right();
-	  else if ((char) rx_buffer[0] == 'L') 	move_left();
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -201,6 +210,12 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PB0 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PB15 */
   GPIO_InitStruct.Pin = GPIO_PIN_15;
