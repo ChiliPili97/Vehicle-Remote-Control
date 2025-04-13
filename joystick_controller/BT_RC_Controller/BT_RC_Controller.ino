@@ -86,23 +86,23 @@ void loop() {
     switch (command) {
       case FORWARD:
         Serial.println("COMMAND FORWARD");
-        SerialBT.println("F");
+        SerialBT.print("F");
         break;
       case BACKWARD:
         Serial.println("COMMAND BACKWARD");
-        SerialBT.println("B");
+        SerialBT.print("B");
         break;
       case LEFT:
         Serial.println("COMMAND LEFT");
-        SerialBT.println("L");
+        SerialBT.print("L");
         break;
       case RIGHT:
         Serial.println("COMMAND RIGHT");
-        SerialBT.println("R");
+        SerialBT.print("R");
         break;
       case HALT:
         Serial.println("COMMAND HALT");
-        SerialBT.println("H");
+        SerialBT.print("H");
         break;
     }
     

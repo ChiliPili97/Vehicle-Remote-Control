@@ -12,8 +12,8 @@
 
 #endif /* INC_MOTOR_H_ */
 
-void move_forward();
-void move_backward();
-void move_left();
-void move_right();
-void halt();
+void Move_Forward(void);
+void Move_Backward(void);
+void Move_Left(void);
+void Move_Right(void);
+void Halt(void);
