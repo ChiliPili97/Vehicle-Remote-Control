@@ -7,15 +7,14 @@
 
 #include "battery.h"
 
-extern ADC_HandleTypeDef hadc1;
+#define ADC_BUFFER_SIZE 10
 
-uint16_t Read_ADC(void)
-{
-    HAL_ADC_Start(&hadc1);
-    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    uint16_t val = HAL_ADC_GetValue(&hadc1);
-    return val;
-}
+extern ADC_HandleTypeDef hadc1;
+extern uint16_t ADC_value;
+extern uint16_t ADC_value_f;
+uint16_t adc_buffer[ADC_BUFFER_SIZE];
+uint8_t index = 0;
+
 
 float Convert_To_Voltage(uint16_t adc_val)
 {
@@ -24,19 +23,33 @@ float Convert_To_Voltage(uint16_t adc_val)
     return v_batt;
 }
 
+
+uint16_t Filter_ADC(uint16_t newValue) {
+	adc_buffer[index++] = newValue;
+    if (index >= ADC_BUFFER_SIZE) index = 0;
+
+    uint32_t sum = 0;
+    for (int i = 0; i < ADC_BUFFER_SIZE; i++) {
+        sum += adc_buffer[i];
+    }
+    return sum / ADC_BUFFER_SIZE;
+}
+
 uint8_t Get_Battery_Charge(void)
 {
+	const float MIN_VOLTAGE = 5.4;
+	const float MAX_VOLTAGE = 8.2;
 	float voltage = 0.0f;
 	uint8_t percent = 0;
 
-	voltage = Convert_To_Voltage(Read_ADC());
+	voltage = Convert_To_Voltage(ADC_value_f);
 
-	if (voltage <= 5.0)
+	if (voltage <= MIN_VOLTAGE)
 		percent = 0;
-	else if (voltage >= 8.0)
+	else if (voltage >= MAX_VOLTAGE)
 		percent = 100;
 	else
-		percent = (uint8_t)((voltage - 5.0) / (8.0 - 5.0) * 100.0);
+		percent = (uint8_t)((voltage - MIN_VOLTAGE) / (MAX_VOLTAGE - MIN_VOLTAGE) * 100.0);
 
 	return percent;
 }
