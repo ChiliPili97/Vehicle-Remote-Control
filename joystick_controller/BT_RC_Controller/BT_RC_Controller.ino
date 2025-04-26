@@ -1,111 +1,32 @@
-#include "BluetoothSerial.h"
+#include "BTLink.h"
+#include "DisplayUI.h"
+#include "Joystick.h"
 
-BluetoothSerial SerialBT;
-
-#define X_PIN       25 
-#define Y_PIN       35
-#define LED_CI_PIN  2   //LED indicator of the connected slave device
-
-#define LEFT_THRESHOLD      1000
-#define RIGHT_THRESHOLD     3000
-#define FORWARD_THRESHOLD   1000
-#define BACKWARD_THRESHOLD  3000
-
-#define HALT      0x00
-#define LEFT      0x01
-#define RIGHT     0x02
-#define FORWARD   0x04
-#define BACKWARD  0x08
-
-int valueX = 0 ; 
-int valueY = 0 ; 
-int command = HALT;
-int oldCommand = HALT;
-bool connected = false;
-String name = "HC-05";
+BTLink btLink("HC-05");
+DisplayUI displayUI(0x27);
+Joystick stick(25, 26, 1000, 3000, 1000, 3000);
+Joystick::Dir dir, lastDir = Joystick::Dir::Halt;
+int percent = -1;
+bool isConnected = false;
 
 void setup() {
-
-    Serial.begin(115200);
-    SerialBT.begin("ESP32_Master", true);  // true = Master mode
-    connected = SerialBT.connect(name);
-    if (connected) {
-        Serial.println("Connected to HC-05");
-    } else {
-        Serial.println("Failed to connect");
-    }
-    
-    // Set the ADC attenuation to 11 dB (up to ~3.3V input)
-    analogSetAttenuation(ADC_11db);
-    pinMode(LED_CI_PIN, OUTPUT);
-    pinMode(4, OUTPUT);
+  Serial.begin(115200);
+  btLink.begin("ESP32_Master");
+  displayUI.begin();
 }
 
 void loop() {
-  static unsigned long lastReconnectAttempt = 0;
-  connected = SerialBT.connected();
+  btLink.loop();
   
-  if (connected)
-    digitalWrite(LED_CI_PIN, HIGH);
-  else
+  isConnected = btLink.isConnected();
+  dir = stick.read();
+  percent = btLink.battery();
+
+  displayUI.loop(isConnected, percent, dir);
+ 
+  if (dir != lastDir)
   {
-    digitalWrite(LED_CI_PIN, LOW);
-    
-    unsigned long now = millis();
-    if (now - lastReconnectAttempt > 5000) {  // Retry every 5 seconds
-      Serial.println("Attempting to reconnect to HC-05...");
-      connected = SerialBT.connect(name);
-      if (connected) {
-        Serial.println("Reconnected to HC-05");
-      } else {
-        Serial.println("Failed to reconnect");
-      }
-      lastReconnectAttempt = now;
-    }
-    return; // Skip further processing if not connected
-  }
-  
-  // Read joystick values
-  int valueX = analogRead(X_PIN);
-  int valueY = analogRead(Y_PIN);
-
-  // Convert analog values to commands
-  if (valueY < FORWARD_THRESHOLD)
-    command = FORWARD;
-  else if (valueY > BACKWARD_THRESHOLD)
-    command = BACKWARD;
-  else if (valueX < LEFT_THRESHOLD)
-    command = LEFT;
-  else if (valueX > RIGHT_THRESHOLD)
-    command = RIGHT;
-  else
-    command = HALT;
-
-  // Send command only if it changes
-  if (command != oldCommand) {
-    switch (command) {
-      case FORWARD:
-        Serial.println("COMMAND FORWARD");
-        SerialBT.print("F");
-        break;
-      case BACKWARD:
-        Serial.println("COMMAND BACKWARD");
-        SerialBT.print("B");
-        break;
-      case LEFT:
-        Serial.println("COMMAND LEFT");
-        SerialBT.print("L");
-        break;
-      case RIGHT:
-        Serial.println("COMMAND RIGHT");
-        SerialBT.print("R");
-        break;
-      case HALT:
-        Serial.println("COMMAND HALT");
-        SerialBT.print("H");
-        break;
-    }
-    
-    oldCommand = command;  // Update only after sending a new command
+    if (isConnected)  btLink.sendCommand(dir);
+    lastDir = dir;
   }
 }

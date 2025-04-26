@@ -35,7 +35,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define RX_BUFFER_LEN  	1
-#define TX_BUFFER_LEN 	4
+#define TX_BUFFER_LEN 	1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -128,11 +128,11 @@ int main(void)
 		  if (charge_percent != charge_old_percent) {
 			  charge_old_percent = charge_percent;
 
-			  memset((char *)tx_buffer, 0, TX_BUFFER_LEN);
-			  itoa(charge_percent,(char *) tx_buffer, 10);
-			  strcat((char *) tx_buffer, (char *)"\n");
+			  //memset((char *)tx_buffer, 0, TX_BUFFER_LEN);
+			  //itoa(charge_percent,(char *) tx_buffer, 10);
+			  //strcat((char *) tx_buffer, (char *)"\n");
 
-			  HAL_UART_Transmit(&huart2, tx_buffer, TX_BUFFER_LEN, 1000);
+			  HAL_UART_Transmit(&huart2, &charge_percent, TX_BUFFER_LEN, 1000);
 		  }
 	  } else {
 		  Halt();
